@@ -76,6 +76,9 @@ module.exports = {
         },
         FactsMngSharkAttack(root, args, context) {
             return sendToBackEndHandler$(root, args, context, READ_ROLES, 'query', 'SharkAttack', 'FactsMngSharkAttack').toPromise();
+        },
+        FactsMngSharkAttacksByCountry(root, args, context) {
+            return sendToBackEndHandler$(root, args, context, READ_ROLES, 'query', 'SharkAttack', 'FactsMngSharkAttacksByCountry', 5000).toPromise();
         }
     },
 
@@ -89,6 +92,9 @@ module.exports = {
         },
         FactsMngDeleteSharkAttacks(root, args, context) {
             return sendToBackEndHandler$(root, args, context, WRITE_ROLES, 'mutation', 'SharkAttack', 'FactsMngDeleteSharkAttacks').toPromise();
+        },
+        FactsMngImportSharkAttacks(root, args, context) {
+            return sendToBackEndHandler$(root, args, context, WRITE_ROLES, 'mutation', 'SharkAttack', 'FactsMngImportSharkAttacks', 60000).toPromise();
         },
     },
 

@@ -60,7 +60,7 @@ class SharkAttackDA {
     const { page = 0, count = 10 } = pagination;
 
     const query = this.generateListingQuery(filter);    
-    const projection = { name: 1, active: 1 };
+    const projection = { date: 1, country: 1, type: 1, species: 1 };
 
     let cursor = collection
       .find(query, { projection })
@@ -167,6 +167,25 @@ class SharkAttackDA {
       )
     ).pipe(
       mapTo({ id: _id, ...properties })
+    );
+  }
+
+  static upsertSharkAttack$(_id, properties, user) {
+    const collection = mongoDB.db.collection(CollectionName);
+    const metadata = {
+      createdBy: user,
+      createdAt: Date.now(),
+      updatedBy: user,
+      updatedAt: Date.now()
+    };
+    return defer(() =>
+      collection.updateOne(
+        { _id },
+        { $set: { ...properties, metadata } },
+        { upsert: true }
+      )
+    ).pipe(
+      map(() => ({ id: _id, ...properties, metadata }))
     );
   }
 

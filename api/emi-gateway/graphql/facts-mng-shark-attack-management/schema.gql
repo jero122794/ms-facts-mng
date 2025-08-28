@@ -8,14 +8,31 @@ type CommandResponse {
 type FactsMngSharkAttack {
   "SharkAttack ID"
   id: ID!
-  "name"
-  name: String!
   "organization id"
   organizationId: String!
-  "SharkAttack description"
-  description: String
   "SharkAttack active flag"
-  active: Boolean!  
+  active: Boolean!
+  name: String
+  description: String
+  date: String
+  year: Int
+  type: String
+  country: String
+  area: String
+  location: String
+  activity: String
+  sex: String
+  age: String
+  injury: String
+  fatal_y_n: String
+  time: String
+  species: String
+  investigator_or_source: String
+  pdf: String
+  href_formula: String
+  href: String
+  case_number: String
+  case_number0: String
   "object metadata"
   metadata: FactsMngSharkAttackMetadata
 }
@@ -59,14 +76,31 @@ input FactsMngSharkAttackSortInput {
 }
 
 input FactsMngSharkAttackInput {
-  "name"
-  name: String
   "organization id"
   organizationId: String!
-  "SharkAttack description"
-  description: String
   "SharkAttack active flag"
   active: Boolean
+  name: String
+  description: String
+  date: String
+  year: Int
+  type: String
+  country: String
+  area: String
+  location: String
+  activity: String
+  sex: String
+  age: String
+  injury: String
+  fatal_y_n: String
+  time: String
+  species: String
+  investigator_or_source: String
+  pdf: String
+  href_formula: String
+  href: String
+  case_number: String
+  case_number0: String
 }
 
 
@@ -75,6 +109,8 @@ type Query {
   FactsMngSharkAttackListing(filterInput: FactsMngSharkAttackFilterInput, paginationInput: FactsMngSharkAttackPaginationInput, sortInput: FactsMngSharkAttackSortInput): FactsMngSharkAttackListing
   "Get SharkAttack by its id"
   FactsMngSharkAttack(id: ID!, organizationId: String!): FactsMngSharkAttack
+  "Get 5 related by country"
+  FactsMngSharkAttacksByCountry(country: String!, limit: Int): [FactsMngSharkAttack]
 }
 
 type Mutation {
@@ -84,6 +120,8 @@ type Mutation {
   FactsMngUpdateSharkAttack(id: ID!, input: FactsMngSharkAttackInput!, merge: Boolean!): FactsMngSharkAttack  
   "Deletes an SharkAttack"
   FactsMngDeleteSharkAttacks(ids: [ID]!): CommandResponse  
+  "Import 100 SharkAttacks from public data"
+  FactsMngImportSharkAttacks(organizationId: String!): CommandResponse
 }
 
 

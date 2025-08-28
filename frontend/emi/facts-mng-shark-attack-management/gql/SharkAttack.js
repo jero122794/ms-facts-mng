@@ -5,7 +5,7 @@ export const FactsMngSharkAttackListing = (variables) => ({
             query FactsMngSharkAttackListing($filterInput:FactsMngSharkAttackFilterInput ,$paginationInput:FactsMngSharkAttackPaginationInput,$sortInput:FactsMngSharkAttackSortInput){
                 FactsMngSharkAttackListing(filterInput:$filterInput,paginationInput:$paginationInput,sortInput:$sortInput){
                     listing{
-                       id,name,active,
+                       id, date, country, type, species
                     },
                     queryTotalResultCount
                 }
@@ -18,7 +18,8 @@ export const FactsMngSharkAttack = (variables) => ({
     query: gql`
             query FactsMngSharkAttack($id: ID!, $organizationId: String!){
                 FactsMngSharkAttack(id:$id, organizationId:$organizationId){
-                    id,name,description,active,organizationId,
+                    id, organizationId, active, name, description,
+                    date, year, type, country, area, location, activity, sex, age, injury, fatal_y_n, time, species, investigator_or_source, pdf, href_formula, href, case_number, case_number0,
                     metadata{ createdBy, createdAt, updatedBy, updatedAt }
                 }
             }`,
@@ -31,7 +32,8 @@ export const FactsMngCreateSharkAttack = (variables) => ({
     mutation: gql`
             mutation  FactsMngCreateSharkAttack($input: FactsMngSharkAttackInput!){
                 FactsMngCreateSharkAttack(input: $input){
-                    id,name,description,active,organizationId,
+                    id, organizationId, active, name, description,
+                    date, year, type, country, area, location, activity, sex, age, injury, fatal_y_n, time, species, investigator_or_source, pdf, href_formula, href, case_number, case_number0,
                     metadata{ createdBy, createdAt, updatedBy, updatedAt }
                 }
             }`,
@@ -50,9 +52,10 @@ export const FactsMngDeleteSharkAttack = (variables) => ({
 
 export const FactsMngUpdateSharkAttack = (variables) => ({
     mutation: gql`
-            ,mutation  FactsMngUpdateSharkAttack($id: ID!,$input: FactsMngSharkAttackInput!, $merge: Boolean!){
+            mutation  FactsMngUpdateSharkAttack($id: ID!,$input: FactsMngSharkAttackInput!, $merge: Boolean!){
                 FactsMngUpdateSharkAttack(id:$id, input: $input, merge:$merge ){
-                    id,organizationId,name,description,active
+                    id, organizationId, active, name, description,
+                    date, year, type, country, area, location, activity, sex, age, injury, fatal_y_n, time, species, investigator_or_source, pdf, href_formula, href, case_number, case_number0
                 }
             }`,
     variables
@@ -61,9 +64,29 @@ export const FactsMngUpdateSharkAttack = (variables) => ({
 export const onFactsMngSharkAttackModified = (variables) => ([
     gql`subscription onFactsMngSharkAttackModified($id:ID!){
             FactsMngSharkAttackModified(id:$id){    
-                id,organizationId,name,description,active,
+                id, organizationId, active, name, description,
+                date, year, type, country, area, location, activity, sex, age, injury, fatal_y_n, time, species, investigator_or_source, pdf, href_formula, href, case_number, case_number0,
                 metadata{ createdBy, createdAt, updatedBy, updatedAt }
             }
     }`,
     { variables }
 ])
+
+export const FactsMngImportSharkAttacks = (variables) => ({
+    mutation: gql`
+            mutation FactsMngImportSharkAttacks($organizationId:String!){
+                FactsMngImportSharkAttacks(organizationId:$organizationId){ code, message }
+            }`,
+    variables
+})
+
+export const FactsMngSharkAttacksByCountry = (variables) => ({
+    query: gql`
+            query FactsMngSharkAttacksByCountry($country:String!, $limit:Int){
+                FactsMngSharkAttacksByCountry(country:$country, limit:$limit){
+                    id, date, country, type, species
+                }
+            }`,
+    variables,
+    fetchPolicy: 'network-only',
+})

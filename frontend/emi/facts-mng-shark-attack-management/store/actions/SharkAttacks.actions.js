@@ -2,7 +2,7 @@ import { defer } from 'rxjs';
 import { mergeMap, map } from 'rxjs/operators';
 
 import graphqlService from '../../../../services/graphqlService';
-import { FactsMngSharkAttackListing, FactsMngDeleteSharkAttack } from '../../gql/SharkAttack';
+import { FactsMngSharkAttackListing, FactsMngDeleteSharkAttack, FactsMngImportSharkAttacks } from '../../gql/SharkAttack';
 
 export const SET_SHARK_ATTACKS = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS';
 export const SET_SHARK_ATTACKS_PAGE = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS PAGE';
@@ -127,6 +127,28 @@ export function setSharkAttacksFilterOrganizationId(organizationId) {
     return {
         type: SET_SHARK_ATTACKS_FILTERS_ORGANIZATION_ID,
         organizationId
+    }
+}
+
+/**
+ * Import 100 shark attacks and refresh the listing
+ */
+export function importSharkAttacks() {
+    return (dispatch, getState) => {
+        const state = getState();
+        const { filters, order, page, rowsPerPage } = state.SharkAttackManagement.sharkAttacks;
+        const listingArgs = getListingQueryArguments({ filters, order, page, rowsPerPage });
+        return defer(() => graphqlService.client.mutate(FactsMngImportSharkAttacks({ organizationId: filters.organizationId })))
+            .pipe(
+                mergeMap(() => defer(() => graphqlService.client.query(FactsMngSharkAttackListing(listingArgs))))
+            )
+            .pipe(
+                map(result => dispatch({
+                    type: SET_SHARK_ATTACKS,
+                    payload: result.data.FactsMngSharkAttackListing
+                }))
+            )
+            .toPromise();
     }
 }
 

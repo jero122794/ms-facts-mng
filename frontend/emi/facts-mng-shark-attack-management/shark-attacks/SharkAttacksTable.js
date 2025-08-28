@@ -55,7 +55,9 @@ function SharkAttacksTable(props) {
     }
 
     function handleClick(item) {
-        props.history.push('/shark-attack-mng/shark-attacks/' + item.id + '/' + item.name.replace(/[\s_·!@#$%^&*(),.?":{}|<>]+/g, '-').toLowerCase());
+        const slugSource = (item && item.name) ? item.name : String(item.id || '');
+        const slug = slugSource ? slugSource.replace(/[\s_·!@#$%^&*(),.?":{}|<>]+/g, '-').toLowerCase() : '';
+        props.history.push('/shark-attack-mng/shark-attacks/' + item.id + '/' + slug);
     }
 
     function handleCheck(event, id) {
@@ -130,19 +132,16 @@ function SharkAttacksTable(props) {
 
 
                                         <TableCell component="th" scope="row">
-                                            {n.name}
+                                            {n.date}
                                         </TableCell>
-
-
-                                        <TableCell component="th" scope="row" align="right">
-                                            {n.active ?
-                                                (
-                                                    <Icon className="text-green text-20">check_circle</Icon>
-                                                ) :
-                                                (
-                                                    <Icon className="text-red text-20">remove_circle</Icon>
-                                                )
-                                            }
+                                        <TableCell component="th" scope="row">
+                                            {n.country}
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {n.type}
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {n.species}
                                         </TableCell>
                                     </TableRow>
                                 );

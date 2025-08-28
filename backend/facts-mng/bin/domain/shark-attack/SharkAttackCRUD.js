@@ -1,8 +1,10 @@
 "use strict";
 
 const uuidv4 = require("uuid/v4");
-const { of, forkJoin, from, iif, throwError } = require("rxjs");
-const { mergeMap, catchError, map, toArray, pluck } = require('rxjs/operators');
+const { of, forkJoin, from, iif, throwError, defer } = require("rxjs");
+const { mergeMap, catchError, map, toArray, pluck, delay } = require('rxjs/operators');
+const fetch = require('node-fetch');
+
 
 const Event = require("@nebulae/event-store").Event;
 const { CqrsResponseHelper } = require('@nebulae/backend-node-tools').cqrs;
@@ -43,8 +45,10 @@ class SharkAttackCRUD {
         "emigateway.graphql.query.FactsMngSharkAttackListing": { fn: instance.getFactsMngSharkAttackListing$, instance, jwtValidation: { roles: READ_ROLES, attributes: REQUIRED_ATTRIBUTES } },
         "emigateway.graphql.query.FactsMngSharkAttack": { fn: instance.getSharkAttack$, instance, jwtValidation: { roles: READ_ROLES, attributes: REQUIRED_ATTRIBUTES } },
         "emigateway.graphql.mutation.FactsMngCreateSharkAttack": { fn: instance.createSharkAttack$, instance, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
+        "emigateway.graphql.query.FactsMngSharkAttacksByCountry": { fn: instance.getSharkAttacksByCountry$, instance, jwtValidation: { roles: READ_ROLES, attributes: REQUIRED_ATTRIBUTES } },
         "emigateway.graphql.mutation.FactsMngUpdateSharkAttack": { fn: instance.updateSharkAttack$, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
         "emigateway.graphql.mutation.FactsMngDeleteSharkAttacks": { fn: instance.deleteSharkAttacks$, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
+        "emigateway.graphql.mutation.FactsMngImportSharkAttacks": { fn: instance.importSharkAttacks$, instance, jwtValidation: { roles: WRITE_ROLES, attributes: REQUIRED_ATTRIBUTES } },
       }
     }
   };
@@ -143,6 +147,88 @@ class SharkAttackCRUD {
       map(([cqrsResponse, brokerRes]) => cqrsResponse),
       catchError(err => iif(() => err.name === 'MongoTimeoutError', throwError(err), CqrsResponseHelper.handleError$(err)))
     );
+  }
+
+  /**
+   * Import 100 shark attacks from OpenDataSoft API
+   */
+  importSharkAttacks$({ args, jwt }, authToken) {
+    const { organizationId } = args;
+    const url = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/global-shark-attack/records?limit=100';
+    return defer(() => fetch(url))
+      .pipe(
+        mergeMap(r => r.json()),
+        pluck('results'),
+        mergeMap(results => from(results || [])),
+        mergeMap(rec => {
+          const r = rec || {};
+          const _id = String(r.original_order);
+          const doc = {
+            organizationId,
+            date: r.date,
+            year: r.year,
+            type: r.type,
+            country: r.country,
+            area: r.area,
+            location: r.location,
+            activity: r.activity,
+            name: r.name,
+            sex: r.sex,
+            age: r.age,
+            injury: r.injury,
+            fatal_y_n: r.fatal_y_n,
+            time: r.time,
+            species: r.species,
+            investigator_or_source: r.investigator_or_source,
+            pdf: r.pdf,
+            href_formula: r.href_formula,
+            href: r.href,
+            case_number: r.case_number,
+            case_number0: r.case_number0,
+            active: true
+          };
+          return SharkAttackDA.upsertSharkAttack$(_id, doc, authToken.preferred_username).pipe(
+            mergeMap(aggregate => forkJoin(
+              of(aggregate),
+              eventSourcing.emitEvent$(new Event({
+                eventType: 'Reported',
+                eventTypeVersion: 1,
+                aggregateType: 'SharkAttact',
+                aggregateId: _id,
+                data: { ...doc },
+                user: authToken.preferred_username
+              }), { autoAcknowledgeKey: process.env.MICROBACKEND_KEY })
+            )),
+            map(([agg]) => agg)
+          );
+        }),
+        toArray(),
+        mergeMap(() => CqrsResponseHelper.buildSuccessResponse$({ code: 200, message: 'Imported 100 records' })),
+        catchError(err => iif(() => err.name === 'MongoTimeoutError', throwError(err), CqrsResponseHelper.handleError$(err)))
+      );
+  }
+
+  /**
+   * Fetch related shark attacks by country from OpenDataSoft API
+   */
+  getSharkAttacksByCountry$({ args }, authToken) {
+    const { country, limit = 5 } = args;
+    const url = `https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/global-shark-attack/records?where=country%3D%27${encodeURIComponent(country)}%27&limit=${limit}`;
+    return defer(() => fetch(url))
+      .pipe(
+        mergeMap(r => r.json()),
+        pluck('results'),
+        map(list => (list || []).map(r => ({
+          id: String(r.original_order),
+          date: r.date,
+          country: r.country,
+          type: r.type,
+          species: r.species
+        }))),
+        delay(1000),
+        mergeMap(raw => CqrsResponseHelper.buildSuccessResponse$(raw)),
+        catchError(err => iif(() => err.name === 'MongoTimeoutError', throwError(err), CqrsResponseHelper.handleError$(err)))
+      );
   }
 
 

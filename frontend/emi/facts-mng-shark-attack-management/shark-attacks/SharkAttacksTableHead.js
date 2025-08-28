@@ -27,20 +27,10 @@ function SharkAttacksTableHead(props) {
 
 
     const rows = [
-        {
-            id: 'name',
-            align: 'left',
-            disablePadding: false,
-            label: T.translate("shark_attacks.table_colums.name"),
-            sort: true
-        },
-        {
-            id: 'active',
-            align: 'right',
-            disablePadding: false,
-            label: T.translate("shark_attacks.table_colums.active"),
-            sort: true
-        }
+        { id: 'date', align: 'left', disablePadding: false, label: 'Fecha', sort: true },
+        { id: 'country', align: 'left', disablePadding: false, label: 'País', sort: true },
+        { id: 'type', align: 'left', disablePadding: false, label: 'Tipo', sort: true },
+        { id: 'species', align: 'left', disablePadding: false, label: 'Especie', sort: true },
     ];
 
     const createSortHandler = property => event => {

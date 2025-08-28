@@ -78,10 +78,15 @@ function SharkAttacksHeader(props) {
 
             </div>
             <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                <Button component={Link} to="/shark-attack-mng/shark-attacks/new" className="whitespace-no-wrap" variant="contained">
-                    <span className="hidden sm:flex">{T.translate("shark_attacks.add_new_shark_attack")}</span>
-                    <span className="flex sm:hidden">{T.translate("shark_attacks.add_new_shark_attack_short")}</span>
-                </Button>
+                <div className="flex items-center">
+                    <Button onClick={() => dispatch(Actions.importSharkAttacks())} className="whitespace-no-wrap mr-8 text-white" variant="outlined" color="primary">
+                        IMPORTAR
+                    </Button>
+                    <Button component={Link} to="/shark-attack-mng/shark-attacks/new" className="whitespace-no-wrap" variant="contained">
+                        <span className="hidden sm:flex">{T.translate("shark_attacks.add_new_shark_attack")}</span>
+                        <span className="flex sm:hidden">{T.translate("shark_attacks.add_new_shark_attack_short")}</span>
+                    </Button>
+                </div>
             </FuseAnimate>
         </div>
     );

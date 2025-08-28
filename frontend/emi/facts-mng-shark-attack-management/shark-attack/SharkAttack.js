@@ -27,7 +27,8 @@ import {
     onFactsMngSharkAttackModified,
     FactsMngSharkAttack,
     FactsMngCreateSharkAttack,
-    FactsMngUpdateSharkAttack
+    FactsMngUpdateSharkAttack,
+    FactsMngSharkAttacksByCountry
 } from "../gql/SharkAttack";
 import Metadata from './tabs/Metadata';
 import { BasicInfo, basicInfoFormValidationsGenerator } from './tabs/BasicInfo';
@@ -61,6 +62,11 @@ function SharkAttack(props) {
     const [tabValue, setTabValue] = useState(0);
     const { form, handleChange: formHandleChange, setForm } = useForm(null);
     const [errors, setErrors] = useState([]);
+    const [related, setRelated] = useState([]);
+    const [relatedLoading, setRelatedLoading] = useState(false);
+    const gqlRelated = FactsMngSharkAttacksByCountry({ country: ((sharkAttack && sharkAttack.country) || ''), limit: 5 });
+    const [runRelated, relatedResult] = useLazyQuery(gqlRelated.query, { fetchPolicy: gqlRelated.fetchPolicy })
+    const [queryRelated, setQueryRelated] = useState(false);
 
     //Translation services
     let T = new MDText(i18n.get(loggedUser.locale));
@@ -121,6 +127,24 @@ function SharkAttack(props) {
             dispatch(AppActions.showMessage({ message: T.translate("shark_attack.update_success"), variant: 'success' }));
         }
     }, [onSharkAttackModifiedResult.data]);
+
+    // Trigger related query
+    useEffect(() => {
+        if (queryRelated && (form && form.country)) {
+            setRelatedLoading(true);
+            runRelated({ variables: { country: form.country, limit: 5 } });
+            setQueryRelated(false);
+        }
+    }, [queryRelated, (form ? form.country : undefined)]);
+
+    // Read related results
+    useEffect(() => {
+        if (relatedResult.data) {
+            setRelated(relatedResult.data.FactsMngSharkAttacksByCountry || []);
+            setRelatedLoading(false);
+        }
+        if (relatedResult.loading) setRelatedLoading(true);
+    }, [relatedResult]);
 
 
     // Keep the sync between the SharkAttack state and the form state
@@ -258,14 +282,24 @@ function SharkAttack(props) {
                             </div>
                         </div>
                         <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                            <Button
-                                className="whitespace-no-wrap"
-                                variant="contained"
-                                disabled={!canBeSubmitted()}
-                                onClick={handleSave}
-                            >
-                                {T.translate("shark_attack.save")}
-                            </Button>
+                            <div className="flex items-center">
+                                <Button
+                                    className="whitespace-no-wrap mr-8"
+                                    variant="outlined"
+                                    disabled={!(form && form.country)}
+                                    onClick={() => setQueryRelated(true)}
+                                >
+                                    {`Consultar más casos en ${(form && form.country) ? form.country : ''}`}
+                                </Button>
+                                <Button
+                                    className="whitespace-no-wrap"
+                                    variant="contained"
+                                    disabled={!canBeSubmitted()}
+                                    onClick={handleSave}
+                                >
+                                    {T.translate("shark_attack.save")}
+                                </Button>
+                            </div>
                         </FuseAnimate>
                     </div>
                 )
@@ -319,7 +353,23 @@ function SharkAttack(props) {
 
                                 return (
                                     <form noValidate onSubmit={handleSubmit}>
-                                        {tabValue === 0 && <BasicInfo dataSource={values} {...{ T, onChange, canWrite, errors, touched }} />}
+                                        {tabValue === 0 && (
+                                            <>
+                                                <BasicInfo dataSource={values} {...{ T, onChange, canWrite, errors, touched }} />
+                                                {(form && form.country) && (
+                                                    <div className="mt-16">
+                                                        {relatedLoading && <FuseLoading />}
+                                                        {!relatedLoading && related && related.length > 0 && (
+                                                            <div className="mt-8">
+                                                                {related.map(x => (
+                                                                    <div key={x.id} className="text-14 mb-4">{`${x.date || '-'} | ${x.country || '-'} | ${x.type || '-'} | ${x.species || '-'}`}</div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                         {tabValue === 1 && <Metadata dataSource={values} T={T} />}
                                     </form>
                                 );
