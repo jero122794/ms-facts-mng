@@ -32,13 +32,13 @@ function getListingQueryArguments({ filters: { name, organizationId, active, cou
         args.filterInput.active = active;
     }
     if ((country || '').trim().length > 0) {
-        args.filterInput.country = country;
+        args.filterInput.country = country.trim();
     }
     if ((type || '').trim().length > 0) {
-        args.filterInput.type = type;
+        args.filterInput.type = type.trim();
     }
     if ((species || '').trim().length > 0) {
-        args.filterInput.species = species;
+        args.filterInput.species = species.trim();
     }
     return args;
 }

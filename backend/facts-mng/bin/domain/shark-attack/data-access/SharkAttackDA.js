@@ -53,10 +53,10 @@ class SharkAttackDA {
       query["active"] = filter.active;
     }
     if (filter.country) {
-      query["country"] = { $regex: `^${filter.country}`, $options: "i" };
+      query["country"] = { $regex: filter.country, $options: "i" };
     }
     if (filter.type) {
-      query["type"] = { $regex: `^${filter.type}`, $options: "i" };
+      query["type"] = { $regex: filter.type, $options: "i" };
     }
     if (filter.species) {
       query["species"] = { $regex: filter.species, $options: "i" };
