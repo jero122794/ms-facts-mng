@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Checkbox, FormGroup, FormControlLabel } from '@material-ui/core';
+import { Checkbox, FormGroup, FormControlLabel, TextField } from '@material-ui/core';
 import { FuseAnimate } from '@fuse';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Actions from '../store/actions';
@@ -10,7 +10,7 @@ import i18n from "../i18n";
 function TodoSidebarContent(props) {
     const dispatch = useDispatch();
     const user = useSelector(({ auth }) => auth.user);
-    const { filters: { active: activeChecked } } = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks);
+    const { filters: { active: activeChecked, country, type, species } } = useSelector(({ SharkAttackManagement }) => SharkAttackManagement.sharkAttacks);
     const T = new MDText(i18n.get(user.locale));
 
 
@@ -32,6 +32,33 @@ function TodoSidebarContent(props) {
 
                 <div className="p-24">
                     <FormGroup row>
+                        <TextField
+                            className="mr-12 mb-16"
+                            id="country"
+                            name="country"
+                            label="Country"
+                            variant="outlined"
+                            value={country}
+                            onChange={(e) => dispatch(Actions.setSharkAttacksFilterCountry(e.target.value))}
+                        />
+                        <TextField
+                            className="mr-12 mb-16"
+                            id="type"
+                            name="type"
+                            label="Type"
+                            variant="outlined"
+                            value={type}
+                            onChange={(e) => dispatch(Actions.setSharkAttacksFilterType(e.target.value))}
+                        />
+                        <TextField
+                            className="mr-12 mb-16"
+                            id="species"
+                            name="species"
+                            label="Species"
+                            variant="outlined"
+                            value={species}
+                            onChange={(e) => dispatch(Actions.setSharkAttacksFilterSpecies(e.target.value))}
+                        />
                         <FormControlLabel
                             control={
                                 <Checkbox

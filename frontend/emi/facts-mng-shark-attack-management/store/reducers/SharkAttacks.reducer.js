@@ -12,7 +12,10 @@ const initialState = {
     filters: {
         name: '',
         active: null,
-        organizationId: undefined
+        organizationId: undefined,
+        country: '',
+        type: '',
+        species: ''
     }
 };
 
@@ -67,6 +70,27 @@ const sharkAttacksReducer = function (state = initialState, action) {
                 return {
                     ...state,
                     filters: { ...state.filters, active: action.active }
+                };
+            }
+        case Actions.SET_SHARK_ATTACKS_FILTERS_COUNTRY:
+            {
+                return {
+                    ...state,
+                    filters: { ...state.filters, country: action.country }
+                };
+            }
+        case Actions.SET_SHARK_ATTACKS_FILTERS_TYPE:
+            {
+                return {
+                    ...state,
+                    filters: { ...state.filters, type: action.attackType }
+                };
+            }
+        case Actions.SET_SHARK_ATTACKS_FILTERS_SPECIES:
+            {
+                return {
+                    ...state,
+                    filters: { ...state.filters, species: action.species }
                 };
             }
         default:

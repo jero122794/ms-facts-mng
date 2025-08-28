@@ -11,12 +11,15 @@ export const SET_SHARK_ATTACKS_ORDER = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS ORD
 export const SET_SHARK_ATTACKS_FILTERS_ORGANIZATION_ID = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS FILTERS ORGANIZATION_ID';
 export const SET_SHARK_ATTACKS_FILTERS_NAME = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS FILTERS NAME';
 export const SET_SHARK_ATTACKS_FILTERS_ACTIVE = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS FILTERS ACTIVE';
+export const SET_SHARK_ATTACKS_FILTERS_COUNTRY = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS FILTERS COUNTRY';
+export const SET_SHARK_ATTACKS_FILTERS_TYPE = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS FILTERS TYPE';
+export const SET_SHARK_ATTACKS_FILTERS_SPECIES = '[SHARK_ATTACK_MNG] SET SHARK_ATTACKS FILTERS SPECIES';
 
 /**
  * Common function to generate the arguments for the FactsMngSharkAttackListing query based on the user input
  * @param {Object} queryParams 
  */
-function getListingQueryArguments({ filters: { name, organizationId, active }, order, page, rowsPerPage }) {
+function getListingQueryArguments({ filters: { name, organizationId, active, country, type, species }, order, page, rowsPerPage }) {
     const args = {
         "filterInput": { organizationId },
         "paginationInput": { "page": page, "count": rowsPerPage, "queryTotalResultCount": (page === 0) },
@@ -27,6 +30,15 @@ function getListingQueryArguments({ filters: { name, organizationId, active }, o
     }
     if (active !== null) {
         args.filterInput.active = active;
+    }
+    if ((country || '').trim().length > 0) {
+        args.filterInput.country = country;
+    }
+    if ((type || '').trim().length > 0) {
+        args.filterInput.type = type;
+    }
+    if ((species || '').trim().length > 0) {
+        args.filterInput.species = species;
     }
     return args;
 }
@@ -127,6 +139,27 @@ export function setSharkAttacksFilterOrganizationId(organizationId) {
     return {
         type: SET_SHARK_ATTACKS_FILTERS_ORGANIZATION_ID,
         organizationId
+    }
+}
+
+export function setSharkAttacksFilterCountry(country) {
+    return {
+        type: SET_SHARK_ATTACKS_FILTERS_COUNTRY,
+        country
+    }
+}
+
+export function setSharkAttacksFilterType(attackType) {
+    return {
+        type: SET_SHARK_ATTACKS_FILTERS_TYPE,
+        attackType
+    }
+}
+
+export function setSharkAttacksFilterSpecies(species) {
+    return {
+        type: SET_SHARK_ATTACKS_FILTERS_SPECIES,
+        species
     }
 }
 

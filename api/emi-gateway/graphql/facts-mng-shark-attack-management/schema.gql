@@ -59,6 +59,9 @@ input FactsMngSharkAttackFilterInput {
   organizationId: String!
   "SharkAttack active flag"
   active: Boolean
+  country: String
+  type: String
+  species: String
 }
 
 input FactsMngSharkAttackPaginationInput {

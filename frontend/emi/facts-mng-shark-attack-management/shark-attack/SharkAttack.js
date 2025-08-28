@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 /* UI core */
-import { Button, Tab, Tabs, TextField, Icon, Typography, Switch, FormControlLabel } from '@material-ui/core';
+import { Button, Tab, Tabs, TextField, Icon, Typography, Switch, FormControlLabel, Paper, List, ListItem, ListItemText, Divider, Chip } from '@material-ui/core';
 import { FuseAnimate, FusePageCarded, FuseLoading } from '@fuse';
 import { useForm } from '@fuse/hooks';
 /* GraphQL Client hooks */
@@ -359,12 +359,31 @@ function SharkAttack(props) {
                                                 {(form && form.country) && (
                                                     <div className="mt-16">
                                                         {relatedLoading && <FuseLoading />}
-                                                        {!relatedLoading && related && related.length > 0 && (
-                                                            <div className="mt-8">
-                                                                {related.map(x => (
-                                                                    <div key={x.id} className="text-14 mb-4">{`${x.date || '-'} | ${x.country || '-'} | ${x.type || '-'} | ${x.species || '-'}`}</div>
-                                                                ))}
-                                                            </div>
+                                                        {!relatedLoading && (
+                                                            <Paper elevation={1} className="p-16">
+                                                                <Typography variant="subtitle1" className="mb-8">{`Casos relacionados`}</Typography>
+                                                                {related && related.length > 0 ? (
+                                                                    <List dense>
+                                                                        {related.map((x, idx) => (
+                                                                            <React.Fragment key={x.id}>
+                                                                                <ListItem className="px-0">
+                                                                                    <ListItemText
+                                                                                        primary={`${x.date || '-'}`}
+                                                                                        secondary={`${x.country || '-'}`}
+                                                                                    />
+                                                                                    <div className="flex items-center">
+                                                                                        <Chip size="small" label={`${x.type || '-'}`} className="mr-8" />
+                                                                                        <Chip size="small" label={`${x.species || '-'}`} />
+                                                                                    </div>
+                                                                                </ListItem>
+                                                                                {idx < related.length - 1 && <Divider component="li" />}
+                                                                            </React.Fragment>
+                                                                        ))}
+                                                                    </List>
+                                                                ) : (
+                                                                    <Typography variant="body2" color="textSecondary">{`No hay casos relacionados`}</Typography>
+                                                                )}
+                                                            </Paper>
                                                         )}
                                                     </div>
                                                 )}
